@@ -1,0 +1,3 @@
+#!/Users/hanheelee/Machine-Learning/myenv/bin/python
+from numba.pycc import main
+main()
