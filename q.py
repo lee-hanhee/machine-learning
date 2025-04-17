@@ -1,142 +1,108 @@
-# -----------------------------
-# 🧠 Conceptual Understanding
-# -----------------------------
+# Create a Python file with basic PyTorch questions and solutions
+
+# basic_pytorch_questions.py
+
+import torch
+import torch.nn as nn
+import numpy as np
+from torch.utils.data import DataLoader, TensorDataset
+
+# 1. Create a PyTorch tensor of shape (3, 4) filled with random numbers
+tensor1 = torch.rand(3, 4)
+
+# 2. Convert a NumPy array to a PyTorch tensor and back
+np_array = np.array([[1, 2], [3, 4]])
+tensor2 = torch.from_numpy(np_array)
+np_array_back = tensor2.numpy()
+
+# 3. Perform matrix multiplication between two tensors
+a = torch.rand(2, 3)
+b = torch.rand(3, 2)
+matmul_result = torch.matmul(a, b)
+
+# 4. Reshape a tensor from shape (4, 3) to (2, 2, 3)
+tensor3 = torch.rand(4, 3)
+reshaped = tensor3.view(2, 2, 3)
+
+# 5. Check if GPU is available and move tensor to GPU
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+tensor4 = torch.rand(2, 2).to(device)
+
+# 6. Create a tensor with gradient tracking enabled
+x = torch.tensor([2.0], requires_grad=True)
+
+# 7. Compute gradients using autograd for y = x^2
+y = x ** 2
+y.backward()
+gradient = x.grad
+
+# 8. Freeze model parameters during fine-tuning
+model = nn.Linear(10, 1)
+for param in model.parameters():
+    param.requires_grad = False
+
+# 9. Toggle between training and evaluation mode
+model.train()
+model.eval()
+
+# 10. Disable gradient computation
+with torch.no_grad():
+    inference = model(torch.rand(1, 10))
+
+# 11. Define a simple neural network
+class Net(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.fc = nn.Linear(10, 1)
+
+    def forward(self, x):
+        return self.fc(x)
+
+net = Net()
+
+# 12. Use DataLoader to load a toy dataset
+x_data = torch.rand(100, 10)
+y_data = torch.rand(100, 1)
+dataset = TensorDataset(x_data, y_data)
+loader = DataLoader(dataset, batch_size=10, shuffle=True)
+
+# 13. Canonical training loop
+loss_fn = nn.MSELoss()
+optimizer = torch.optim.SGD(net.parameters(), lr=0.01)
+
+for epoch in range(1):
+    for x_batch, y_batch in loader:
+        optimizer.zero_grad()
+        preds = net(x_batch)
+        loss = loss_fn(preds, y_batch)
+        loss.backward()
+        optimizer.step()
+
+# 14. Save and load a model
+torch.save(net.state_dict(), "model.pth")
+net.load_state_dict(torch.load("model.pth"))
+
+# 15. Custom loss function
+class CustomLoss(nn.Module):
+    def forward(self, pred, target):
+        return torch.mean((pred - target) ** 2)
+
+# 16. Concatenate tensors
+concat = torch.cat([torch.rand(2, 3), torch.rand(2, 3)], dim=0)
+
+# 17. Stack tensors
+stack = torch.stack([torch.rand(2, 3), torch.rand(2, 3)], dim=0)
+
+# 18. Detach vs. no_grad
+a = torch.tensor([3.0], requires_grad=True)
+b = a.detach()  # no grad tracking
+with torch.no_grad():
+    c = a + 2  # also no grad tracking
+
+# 19. Manual ReLU
+x = torch.tensor([-1.0, 2.0])
+relu_manual = x * (x > 0).float()
 
-# 1. What is the difference between torch.Tensor and np.array?
-# Answer:
-
-
-# 2. How does PyTorch support dynamic computational graphs (define-by-run)?
-# Answer:
-
-
-# 3. What are the advantages of using PyTorch over TensorFlow for research?
-# Answer:
-
-
-# 4. What is autograd in PyTorch? How does it work?
-# Answer:
-
-
-# 5. Explain the role of requires_grad. What happens if it's set to True?
-# Answer:
-
-
-# 6. What is the difference between model.eval() and model.train()?
-# Answer:
-
-
-# 7. Explain the purpose of torch.no_grad() and where it's used.
-# Answer:
-
-
-# 8. What’s the difference between detach() and with torch.no_grad()?
-# Answer:
-
-
-# -----------------------------
-# 🛠️ Model Building & Training
-# -----------------------------
-
-# 9. How do you define a neural network in PyTorch?
-# Answer:
-
-
-# 10. What is the purpose of __init__() and forward() in a custom nn.Module class?
-# Answer:
-
-
-# 11. What is the difference between nn.Sequential and defining a class with nn.Module?
-# Answer:
-
-
-# 12. How do you define and use a loss function in PyTorch?
-# Answer:
-
-
-# 13. Explain how to use an optimizer like torch.optim.SGD or Adam.
-# Answer:
-
-
-# 14. What is the role of .backward() and .step() in the training loop?
-# Answer:
-
-
-# 15. How do you implement early stopping in a PyTorch training loop?
-# Answer:
-
-
-# 16. Why is gradient clipping useful, and how is it done in PyTorch?
-# Answer:
-
-
-# -----------------------------
-# 📦 Data Handling
-# -----------------------------
-
-# 17. What is the Dataset class in PyTorch? How is it used?
-# Answer:
-
-
-# 18. What is a DataLoader, and how does it differ from a Dataset?
-# Answer:
-
-
-# 19. How would you create a custom Dataset class for your own data?
-# Answer:
-
-
-# 20. What is the purpose of transform and target_transform in torchvision datasets?
-# Answer:
-
-
-# 21. How do you perform data augmentation using torchvision.transforms?
-# Answer:
-
-
-# -----------------------------
-# 📏 Tensors and Operations
-# -----------------------------
-
-# 22. How do you create tensors in PyTorch?
-# Answer:
-
-
-# 23. What are the differences between .view(), .reshape(), and .permute()?
-# Answer:
-
-
-# 24. How do you move a tensor to a GPU?
-# Answer:
-
-
-# 25. What is the difference between torch.cat() and torch.stack()?
-# Answer:
-
-
-# 26. How can you perform matrix multiplication in PyTorch?
-# Answer:
-
-
-# -----------------------------
-# 🧪 Debugging and Miscellaneous
-# -----------------------------
-
-# 27. How do you check if your model is overfitting or underfitting?
-# Answer:
-
-
-# 28. How do you save and load a PyTorch model?
-# Answer:
-
-
-# 29. How would you log training/validation losses during training?
-# Answer:
-
-
-# 30. How do you use TensorBoard with PyTorch?
-# Answer:
-
-
-# 31. What tools or methods do you use to debug a PyTorch model?
-# Answer:
+# 20. Dropout
+dropout = nn.Dropout(p=0.5)
+dropout_output = dropout(torch.rand(5))
