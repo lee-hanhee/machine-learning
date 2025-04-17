@@ -71,12 +71,32 @@ loss_fn = nn.MSELoss()
 optimizer = torch.optim.SGD(net.parameters(), lr=0.01)
 
 for epoch in range(1):
+    net.train()
     for x_batch, y_batch in loader:
-        optimizer.zero_grad()
+        # FWD Propagation
         preds = net(x_batch)
         loss = loss_fn(preds, y_batch)
+        
+        # BWD Propagation
+        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        
+# 13.5 Eval mode
+net.eval()
+
+correct = 0
+total = len(dataset)
+with torch.no_grad():
+    for x_batch, y_batch in loader:
+        preds = net(x_batch)
+        loss = loss_fn(preds, y_batch)
+        # Assuming binary classification for simplicity
+        predicted = (preds > 0.5).float()
+        correct += (predicted == y_batch).sum().item()
+        total += y_batch.size(0)
+accuracy = correct / total
+print(f"Accuracy: {accuracy:.2f}")
 
 # 14. Save and load a model
 torch.save(net.state_dict(), "model.pth")
@@ -106,3 +126,59 @@ relu_manual = x * (x > 0).float()
 # 20. Dropout
 dropout = nn.Dropout(p=0.5)
 dropout_output = dropout(torch.rand(5))
+
+# 21. Transform 
+transform = torchvision.transforms.Compose([
+    torchvision.transforms.ToTensor(),
+    torchvision.transforms.Normalize((0.5,), (0.5,))
+])
+
+# 22. MLP 
+class MLP(nn.Module):
+    """Multilayer Perceptron (MLP) model."""
+
+    def __init__(self, input_size:int, hidden_size:int, num_classes:int):
+        super(MLP, self).__init__()
+        self.flatten = nn.Flatten()
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.relu = nn.ReLU()
+        self.predict = nn.Linear(hidden_size, num_classes)
+
+    def get_embedding(self, x):
+        x = self.flatten(x)
+        x = self.fc1(x)
+        x = self.relu(x)
+        return x
+
+    def forward(self, x):
+        x = self.get_embedding(x)
+        x = self.predict(x)
+        return x
+    
+# 23. CNN
+class ConvNet(nn.Module):
+    def __init__(self):
+        super(ConvNet, self).__init__()
+        self.layer1 = nn.Sequential(
+            nn.Conv2d(1, 16, kernel_size=5, padding=2),
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2))
+        self.layer2 = nn.Sequential(
+            nn.Conv2d(16, 32, kernel_size=5, padding=2),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2))
+        self.fc = nn.Linear(7*7*32, 10)
+
+
+    def forward(self, x):
+        out = self.layer1(x)
+        out = self.layer2(out)
+        out = out.reshape(out.size(0), -1)  # Flatten the output
+        out = self.fc(out)
+        return out
+    
+# Move to device 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = ConvNet().to(device)
